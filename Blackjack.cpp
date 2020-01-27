@@ -84,42 +84,47 @@ std::pair<int, int> Blackjack::calculate_card_points(std::vector<char> &cards, i
     }
     return std::make_pair(points, usable_ace);
 }
-
+bool is_bust(int hand, int winning){
+    return hand > winning;
+}
+int calculate_reward(int player, int dealer, int winning_points){
+    return cmp(calculate_score(player, winning_points), calculate_score(dealer, winning_points));
+}
+int cmp (int a, int b){
+    return int((a > b)) - int((a < b));
+}
+int calculate_score(int hand, int winning){
+    int score = is_bust(hand, winning) ? 0 : hand;
+    return score;
+}
 episode game_proceed(Blackjack &game, int action, int winning_points, int dealer_critical_points_to_stick) {
-    int reward = INT_MIN;
+    int reward;
     int player_points = game.player_points;
     int dealer_points = game.dealer_points;
     int player_usable_ace = game.player_usable_ace;
-
+    bool done;
     if (action == 0) {
         game.player_cards.push_back(game.draw_card());
         std::pair<int, int> player_card_points = game.calculate_card_points(game.player_cards, winning_points);
         player_points = player_card_points.first;
         player_usable_ace = player_card_points.second;
-        if (player_points > winning_points) {
+        if (is_bust(player_points, winning_points)) {
             reward = -1;
+            done = true;
+        } else {
+            done = false;
+            reward = 0;
         }
     } else {
+        done = true;
         while (dealer_points < dealer_critical_points_to_stick) {
             game.dealer_cards.push_back(game.draw_card());
             std::pair<int, int> dealer_card_points = game.calculate_card_points(game.dealer_cards, winning_points);
             dealer_points = dealer_card_points.first;
         }
-        if (dealer_points > winning_points) {
-            reward = 1;
-        } else {
-            if (player_points <= winning_points) {
-                if (player_points < dealer_points) {
-                    reward = -1;
-                } else if (player_points == dealer_points) {
-                    reward = 0;
-                } else if (player_points > dealer_points) {
-                    reward = 1;
-                }
-            }
-        }
+        reward = calculate_reward(player_points, dealer_points, winning_points);
     }
-    episode e = episode(player_points, dealer_points, player_usable_ace, reward);
+    episode e = episode(player_points, dealer_points, player_usable_ace, reward, done);
     return e;
 
 }

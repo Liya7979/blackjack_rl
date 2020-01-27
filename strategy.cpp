@@ -63,24 +63,18 @@ namespace strategy {
                        std::unordered_map<Blackjack_state_action, int> &state_action_count,
                        const std::string &method, double gamma) {
         for (size_t i = 0; i < occured_state_actions.size(); i++) {
-
-
             Blackjack_state_action state_action = occured_state_actions[i];
             Blackjack_state state = Blackjack_state(state_action.player_points, state_action.dealer_first_card_points,
                                                     state_action.usable_ace);
-
             if (state_count.find(state) == state_count.end()) {
                 state_count.insert(std::make_pair(state, 1));
             } else {
                 state_count.at(state)++;
-//                state_count.insert(std::make_pair(state, state_count.at(state) + 1));
             }
             if (state_action_count.find(state_action) == state_action_count.end()) {
                 state_action_count.insert(std::make_pair(state_action, 1));
             } else {
                 state_action_count.at(state_action)++;
-//                state_action_count.insert(std::make_pair(state_action,
-//                                                         state_action_count.at(state_action) + 1));
             }
             double alpha = 1.0 / state_action_count.at(state_action);
             if (method == "Q-learning" || method == "Sarsa") {
@@ -88,9 +82,7 @@ namespace strategy {
                 double best_next_q_value;
 
                 if (i < occured_state_actions.size() - 1) {
-
                     if (method == "Q-learning") {
-
                         Blackjack_state_action next_hit_state_action = occured_state_actions[i + 1];
                         next_hit_state_action.action = 0;
                         Blackjack_state_action next_stick_state_action = occured_state_actions[i + 1];
@@ -106,13 +98,13 @@ namespace strategy {
                     best_next_q_value = 0;
                 }
                 if (map_contains(qtable, occured_state_actions[i])) {
-                    qtable.at(occured_state_actions[i]) =
-                            (1 - alpha) * previous_q_val + alpha * (reward + best_next_q_value);
+                    qtable.at(occured_state_actions[i]) = previous_q_val + alpha * (reward + best_next_q_value
+                                                                                    - previous_q_val);
                 } else {
                     qtable.insert(std::make_pair(occured_state_actions[i],
-                                                 (1 - alpha) * previous_q_val + alpha * (reward + best_next_q_value)));
+                                                 previous_q_val + alpha * (reward + best_next_q_value
+                                                                           - previous_q_val)));
                 }
-//                qtable[occured_state_actions[i]] = (1 - alpha) * previous_q_val + alpha * (reward + best_next_q_value);
             } else {
                 auto key = occured_state_actions[i];
                 auto value = qtable_get(qtable, key);
@@ -121,8 +113,6 @@ namespace strategy {
                 } else {
                     qtable.insert(std::make_pair(key, value + (alpha * (reward - value))));
                 }
-//                qtable[occured_state_actions[i]] += alpha * (reward - qtable[occured_state_actions[i]]);
-//                qtable.insert(std::make_pair(key, value + (alpha * (reward - value))));
             }
         }
     }

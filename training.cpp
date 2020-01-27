@@ -22,29 +22,26 @@ namespace training {
         std::unordered_map<Blackjack_state_action, double> qtable;
         std::unordered_map<Blackjack_state, int> state_count;
         std::unordered_map<Blackjack_state_action, int> state_action_count;
+        int score = 0;
         for (int i = 0; i < testing_iteration + training_iteration; i++) {
             // hit = 0, stick = 1
             int action = INT_MIN;
             int reward = INT_MIN;
             Blackjack game = Blackjack(deck_content, initial_number_cards, winning_points);
             std::vector<Blackjack_state_action> occured_state_actions;
-
             while (!game.finish) {
-                if (action != 1) {
-                    if (i < training_iteration) {
-                        Blackjack_state state(game.player_points,
-                                              game.dealer_first_card_points,
-                                              game.player_usable_ace);
-                        int count = (state_count.find(state) == state_count.end()) ? 0 : state_count.at(state);
-                        double epsilon = 100 / double(100 + count);
-                        action = strategy::epsilon_greedy(epsilon, qtable, game.player_points,
-                                                          game.dealer_first_card_points, game.player_usable_ace);
-                    } else {
-                        action = strategy::best_action(qtable, game.player_points,game.dealer_first_card_points,
-                                                       game.player_usable_ace);
-                    }
+                if (i < training_iteration) {
+                    Blackjack_state state(game.player_points,
+                                          game.dealer_first_card_points,
+                                          game.player_usable_ace);
+                    int count = (state_count.find(state) == state_count.end()) ? 0 : state_count.at(state);
+                    double epsilon = 100 / double(100 + count);
+                    action = strategy::epsilon_greedy(epsilon, qtable, game.player_points,
+                                                      game.dealer_first_card_points, game.player_usable_ace);
+                } else {
+                    action = strategy::best_action(qtable, game.player_points, game.dealer_first_card_points,
+                                                   game.player_usable_ace);
                 }
-
                 Blackjack_state_action occured_state_action = Blackjack_state_action(game.player_points,
                                                                                      game.dealer_first_card_points,
                                                                                      game.player_usable_ace, action);
@@ -54,15 +51,15 @@ namespace training {
                 }
                 episode e = game_proceed(game, action, winning_points, dealer_criticial_points_to_stick);
                 reward = e.reward;
-                if (reward != INT_MIN) {
+                if (e.done) {
                     game.finish = true;
                 }
-
+                if (i < training_iteration) {
+                    strategy::update_qtable(reward, occured_state_actions, qtable, state_count,
+                                            state_action_count, method);
+                }
             }
-            if (i < training_iteration) {
-                strategy::update_qtable(reward, occured_state_actions, qtable, state_count,
-                                        state_action_count, method);
-            } else {
+            if (i > training_iteration) {
                 if (reward == 1) {
                     test_result[0] += 1;
                 } else if (reward == -1) {
