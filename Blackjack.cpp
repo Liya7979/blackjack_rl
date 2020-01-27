@@ -8,7 +8,6 @@
 #include <utility>
 
 
-
 Blackjack::Blackjack(std::vector<char> deck_content, int initial_cards, int winning_points) :
         deck_content(std::move(deck_content)), initial_cards(initial_cards), winning_points(winning_points) {
 
@@ -84,19 +83,24 @@ std::pair<int, int> Blackjack::calculate_card_points(std::vector<char> &cards, i
     }
     return std::make_pair(points, usable_ace);
 }
-bool is_bust(int hand, int winning){
+
+bool is_bust(int hand, int winning) {
     return hand > winning;
 }
-int calculate_reward(int player, int dealer, int winning_points){
+
+int calculate_reward(int player, int dealer, int winning_points) {
     return cmp(calculate_score(player, winning_points), calculate_score(dealer, winning_points));
 }
-int cmp (int a, int b){
+
+int cmp(int a, int b) {
     return int((a > b)) - int((a < b));
 }
-int calculate_score(int hand, int winning){
+
+int calculate_score(int hand, int winning) {
     int score = is_bust(hand, winning) ? 0 : hand;
     return score;
 }
+
 Episode game_proceed(Blackjack &game, int action, int winning_points, int dealer_critical_points_to_stick) {
     int reward;
     int player_points = game.player_points;
@@ -124,9 +128,28 @@ Episode game_proceed(Blackjack &game, int action, int winning_points, int dealer
         }
         reward = calculate_reward(player_points, dealer_points, winning_points);
     }
-    Episode e = Episode(player_points, dealer_points, player_usable_ace, reward, done);
+    game.dealer_first_card_points = game.calculate_dealer_first_card(game.dealer_cards);
+    Episode e = Episode(player_points, game.dealer_first_card_points, player_usable_ace, reward, done);
     return e;
+}
 
+State reset_game(Blackjack &game){
+    for (int i = 0; i < game.initial_cards; i++) {
+        game.player_cards.push_back(game.draw_card());
+    }
+
+    for (int i = 0; i < game.initial_cards; i++) {
+        game.dealer_cards.push_back(game.draw_card());
+        if (i == 0) {
+            game.dealer_first_card_points = game.calculate_dealer_first_card(game.dealer_cards);
+        }
+    }
+
+    while(game.calculate_card_points(game.player_cards, game.winning_points).first < 12){
+        game.player_cards.push_back(game.draw_card());
+    }
+
+    return {game.player_points, game.dealer_first_card_points, game.player_usable_ace};
 }
 
 

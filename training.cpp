@@ -41,7 +41,7 @@ namespace training {
     }
 
     std::unordered_map<State_action, double> train(int training_iteration, int testing_iteration,
-                                                   const std::string& method, std::vector<char> &deck_content,
+                                                   const std::string &method, std::vector<char> &deck_content,
                                                    int initial_number_cards, int winning_points,
                                                    int dealer_criticial_points_to_stick) {
         // check if input parameters are valid
@@ -54,38 +54,27 @@ namespace training {
         std::unordered_map<State_action, double> qtable;
         std::unordered_map<State, int> state_count;
         std::unordered_map<State_action, int> state_action_count;
-        for (int i = 0; i < training_iteration; i++) {
+        for (int i = 1; i < training_iteration + 1; i++) {
             int score = 0;
             // hit = 0, stick = 1
             int action;
             int reward;
             Blackjack game = Blackjack(deck_content, initial_number_cards, winning_points);
-            std::vector<State_action> occured_state_actions;
+            State state = reset_game(game);
+            double epsilon = std::max(1.0 / i, 0.01);
             while (!game.finish) {
-                State state(game.player_points,
-                            game.dealer_first_card_points,
-                            game.player_usable_ace);
-                int count = (state_count.find(state) == state_count.end()) ? 0 : state_count.at(state);
-                double epsilon = 100 / double(100 + count);
                 action = strategy::epsilon_greedy(epsilon, qtable, game.player_points,
                                                   game.dealer_first_card_points, game.player_usable_ace);
-                State_action occurred_state_action = State_action(game.player_points,
-                                                                  game.dealer_first_card_points,
-                                                                  game.player_usable_ace, action);
                 Episode e = game_proceed(game, action, winning_points, dealer_criticial_points_to_stick);
                 reward = e.reward;
-                score+=reward;
-                occurred_state_action.reward = e.reward;
-                if (std::find(occured_state_actions.begin(), occured_state_actions.end(), occurred_state_action)
-                    == occured_state_actions.end() && game.player_points <= winning_points) {
-                    occured_state_actions.push_back(occurred_state_action);
-                }
-                strategy::update_qtable(occured_state_actions, qtable, state_count,
-                                        state_action_count, method);
+                score += reward;
+                strategy::update_qtable(e, action, state, qtable, method);
+                state = State(e.player, e.dealer, e.reward);
                 if (e.done) {
                     game.finish = true;
                 }
             }
+
 
         }
         test_system(qtable, training_iteration, testing_iteration, method, deck_content, initial_number_cards,

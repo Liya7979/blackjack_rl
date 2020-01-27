@@ -9,62 +9,9 @@
 #include <random>
 #include <unordered_map>
 #include <iostream>
+#include "Blackjack.h"
 
-struct State_action {
-    int player_points;
-    int dealer_first_card_points;
-    int usable_ace;
-    int action;
-    int reward;
 
-    State_action(int player_points, int dealer_first_card_points, int usable_ace, int action, int reward=0) :
-            player_points(player_points), dealer_first_card_points(dealer_first_card_points),
-            usable_ace(usable_ace),reward(reward), action(action) {
-
-    }
-
-    bool operator==(const State_action &other) const {
-        return player_points == other.player_points &&
-               dealer_first_card_points == other.dealer_first_card_points &&
-               usable_ace == other.usable_ace &&
-               action == other.action;
-    }
-};
-
-struct State {
-    int player_points;
-    int dealer_first_card_points;
-    int usable_ace;
-
-    State(int player_points, int dealer_first_card_points, int usable_ace) :
-            player_points(player_points), dealer_first_card_points(dealer_first_card_points),
-            usable_ace(usable_ace) {
-
-    }
-
-    bool operator==(const State &other) const {
-        return player_points == other.player_points &&
-               dealer_first_card_points == other.dealer_first_card_points &&
-               usable_ace == other.usable_ace;
-    }
-};
-
-namespace std {
-    template<>
-    struct hash<State_action> {
-        std::size_t operator()(const State_action &k) const {
-            return k.player_points + 10 * k.dealer_first_card_points + 100 * k.usable_ace + 1000 * k.action;
-        }
-    };
-
-    template<>
-    struct hash<State> {
-        std::size_t operator()(const State &k) const {
-            return k.player_points + 10 * k.dealer_first_card_points + 100 * k.usable_ace;
-        }
-
-    };
-}
 
 namespace strategy {
     bool map_contains(std::unordered_map<State_action, double> &qtable, State_action &action);
@@ -77,11 +24,9 @@ namespace strategy {
     int epsilon_greedy(double epsilon, std::unordered_map<State_action, double> &qtable, int player_points,
                        int dealer_points, int player_usable_ace);
 
-    void update_qtable(std::vector<State_action> &occured_state_actions,
+    void update_qtable(Episode next, int action, State state,
                        std::unordered_map<State_action, double> &qtable,
-                       std::unordered_map<State, int> &state_count,
-                       std::unordered_map<State_action, int> &state_action_count,
-                       const std::string &method, double gamma = 0.9);
+                       const std::string &method, double gamma = 1);
 
 }
 

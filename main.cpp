@@ -34,18 +34,18 @@ int main() {
                                                                          initial_number_cards,
                                                                          winning_points,
                                                                          dealer_criticial_points_stick);
-//    std::unordered_map<State_action, double> qtable_Sarsa = training::train(1000000, 100000,
-//                                                                            "Sarsa",
-//                                                                            default_deck,
-//                                                                            initial_number_cards,
-//                                                                            winning_points,
-//                                                                            dealer_criticial_points_stick);
-//    std::unordered_map<State_action, double> qtable_TD = training::train(1000000, 100000,
-//                                                                         "TD",
-//                                                                         default_deck,
-//                                                                         initial_number_cards,
-//                                                                         winning_points,
-//                                                                         dealer_criticial_points_stick);
+    std::unordered_map<State_action, double> qtable_Sarsa = training::train(1000000, 100000,
+                                                                            "Sarsa",
+                                                                            default_deck,
+                                                                            initial_number_cards,
+                                                                            winning_points,
+                                                                            dealer_criticial_points_stick);
+    std::unordered_map<State_action, double> qtable_TD = training::train(1000000, 100000,
+                                                                         "TD",
+                                                                         default_deck,
+                                                                         initial_number_cards,
+                                                                         winning_points,
+                                                                         dealer_criticial_points_stick);
     send_to_file("ql", qtable_QL);
     return 0;
 }
