@@ -97,7 +97,7 @@ int calculate_score(int hand, int winning){
     int score = is_bust(hand, winning) ? 0 : hand;
     return score;
 }
-episode game_proceed(Blackjack &game, int action, int winning_points, int dealer_critical_points_to_stick) {
+Episode game_proceed(Blackjack &game, int action, int winning_points, int dealer_critical_points_to_stick) {
     int reward;
     int player_points = game.player_points;
     int dealer_points = game.dealer_points;
@@ -124,7 +124,7 @@ episode game_proceed(Blackjack &game, int action, int winning_points, int dealer
         }
         reward = calculate_reward(player_points, dealer_points, winning_points);
     }
-    episode e = episode(player_points, dealer_points, player_usable_ace, reward, done);
+    Episode e = Episode(player_points, dealer_points, player_usable_ace, reward, done);
     return e;
 
 }

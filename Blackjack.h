@@ -41,14 +41,14 @@ public:
 
 
 };
-struct episode {
+struct Episode {
     int player_points;
     int dealer_points;
     int usable_ace;
     int reward;
     bool done;
 
-    episode(int player_points, int dealer_points, int usable_ace, int reward, bool done) :
+    Episode(int player_points, int dealer_points, int usable_ace, int reward, bool done) :
             player_points(player_points), dealer_points(dealer_points), usable_ace(usable_ace), reward(reward), done(done) {
     }
 
@@ -57,6 +57,6 @@ bool is_bust(int hand, int winning);
 int calculate_reward(int player, int dealer, int winning_points);
 int calculate_score(int hand, int winning);
 int cmp (int a, int b);
-episode game_proceed(Blackjack &game, int action, int winning_points, int dealer_critical_points_to_stick);
+Episode game_proceed(Blackjack &game, int action, int winning_points, int dealer_critical_points_to_stick);
 
 #endif //BLACKJACK_BLACKJACK_H

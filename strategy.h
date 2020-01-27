@@ -10,20 +10,21 @@
 #include <unordered_map>
 #include <iostream>
 
-struct Blackjack_state_action {
+struct State_action {
     int player_points;
     int dealer_first_card_points;
     int usable_ace;
     int action;
+    int reward;
 
-    Blackjack_state_action(int player_points, int dealer_first_card_points, int usable_ace, int action) :
+    State_action(int player_points, int dealer_first_card_points, int usable_ace, int action, int reward = 0) :
             player_points(player_points), dealer_first_card_points(dealer_first_card_points),
             usable_ace(usable_ace),
-            action(action) {
+            action(action), reward(reward) {
 
     }
 
-    bool operator==(const Blackjack_state_action &other) const {
+    bool operator==(const State_action &other) const {
         return player_points == other.player_points &&
                dealer_first_card_points == other.dealer_first_card_points &&
                usable_ace == other.usable_ace &&
@@ -31,18 +32,18 @@ struct Blackjack_state_action {
     }
 };
 
-struct Blackjack_state {
+struct State {
     int player_points;
     int dealer_first_card_points;
     int usable_ace;
 
-    Blackjack_state(int player_points, int dealer_first_card_points, int usable_ace) :
+    State(int player_points, int dealer_first_card_points, int usable_ace) :
             player_points(player_points), dealer_first_card_points(dealer_first_card_points),
             usable_ace(usable_ace) {
 
     }
 
-    bool operator==(const Blackjack_state &other) const {
+    bool operator==(const State &other) const {
         return player_points == other.player_points &&
                dealer_first_card_points == other.dealer_first_card_points &&
                usable_ace == other.usable_ace;
@@ -51,15 +52,15 @@ struct Blackjack_state {
 
 namespace std {
     template<>
-    struct hash<Blackjack_state_action> {
-        std::size_t operator()(const Blackjack_state_action &k) const {
+    struct hash<State_action> {
+        std::size_t operator()(const State_action &k) const {
             return k.player_points + 10 * k.dealer_first_card_points + 100 * k.usable_ace + 1000 * k.action;
         }
     };
 
     template<>
-    struct hash<Blackjack_state> {
-        std::size_t operator()(const Blackjack_state &k) const {
+    struct hash<State> {
+        std::size_t operator()(const State &k) const {
             return k.player_points + 10 * k.dealer_first_card_points + 100 * k.usable_ace;
         }
 
@@ -67,16 +68,20 @@ namespace std {
 }
 
 namespace strategy {
-    bool map_contains(std::unordered_map<Blackjack_state_action, double> &qtable, Blackjack_state_action &action);
+    bool map_contains(std::unordered_map<State_action, double> &qtable, State_action &action);
+
     int random_action();
-    int best_action(std::unordered_map<Blackjack_state_action, double> &qtable, int player_points,
+
+    int best_action(std::unordered_map<State_action, double> &qtable, int player_points,
                     int dealer_points, int player_usable_ace);
-    int epsilon_greedy(double epsilon, std::unordered_map<Blackjack_state_action, double> &qtable, int player_points,
+
+    int epsilon_greedy(double epsilon, std::unordered_map<State_action, double> &qtable, int player_points,
                        int dealer_points, int player_usable_ace);
-    void update_qtable(int reward, std::vector<Blackjack_state_action> &occured_state_actions,
-                       std::unordered_map<Blackjack_state_action, double> &qtable,
-                       std::unordered_map<Blackjack_state, int> &state_count,
-                       std::unordered_map<Blackjack_state_action, int> &state_action_count,
+
+    void update_qtable(int reward, std::vector<State_action> &occured_state_actions,
+                       std::unordered_map<State_action, double> &qtable,
+                       std::unordered_map<State, int> &state_count,
+                       std::unordered_map<State_action, int> &state_action_count,
                        const std::string &method, double gamma = 0.8);
 
 }

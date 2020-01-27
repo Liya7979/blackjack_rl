@@ -13,9 +13,9 @@
 #include <climits>
 
 namespace training {
-    std::unordered_map<Blackjack_state_action, double> train_test(int training_iteration, int testing_iteration,
-                                                                  std::string method, std::vector<char> &deck_content,
-                                                                  int initial_number_cards, int winning_points,
-                                                                  int dealer_criticial_points_to_stick);
+    std::unordered_map<State_action, double> train(int training_iteration, int testing_iteration,
+                                                   const std::string& method, std::vector<char> &deck_content,
+                                                   int initial_number_cards, int winning_points,
+                                                   int dealer_criticial_points_to_stick);
 }
 #endif //BLACKJACK_TRAINING_H
