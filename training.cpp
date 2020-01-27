@@ -54,8 +54,8 @@ namespace training {
         std::unordered_map<State_action, double> qtable;
         std::unordered_map<State, int> state_count;
         std::unordered_map<State_action, int> state_action_count;
-        int score = 0;
         for (int i = 0; i < training_iteration; i++) {
+            int score = 0;
             // hit = 0, stick = 1
             int action;
             int reward;
@@ -74,16 +74,19 @@ namespace training {
                                                                   game.player_usable_ace, action);
                 Episode e = game_proceed(game, action, winning_points, dealer_criticial_points_to_stick);
                 reward = e.reward;
+                score+=reward;
+                occurred_state_action.reward = e.reward;
                 if (std::find(occured_state_actions.begin(), occured_state_actions.end(), occurred_state_action)
                     == occured_state_actions.end() && game.player_points <= winning_points) {
                     occured_state_actions.push_back(occurred_state_action);
                 }
+                strategy::update_qtable(occured_state_actions, qtable, state_count,
+                                        state_action_count, method);
                 if (e.done) {
                     game.finish = true;
                 }
-                strategy::update_qtable(reward, occured_state_actions, qtable, state_count,
-                                        state_action_count, method);
             }
+
         }
         test_system(qtable, training_iteration, testing_iteration, method, deck_content, initial_number_cards,
                     winning_points, dealer_criticial_points_to_stick);

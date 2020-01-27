@@ -15,11 +15,11 @@ struct State_action {
     int dealer_first_card_points;
     int usable_ace;
     int action;
+    int reward;
 
-    State_action(int player_points, int dealer_first_card_points, int usable_ace, int action) :
+    State_action(int player_points, int dealer_first_card_points, int usable_ace, int action, int reward=0) :
             player_points(player_points), dealer_first_card_points(dealer_first_card_points),
-            usable_ace(usable_ace),
-            action(action) {
+            usable_ace(usable_ace),reward(reward), action(action) {
 
     }
 
@@ -77,7 +77,7 @@ namespace strategy {
     int epsilon_greedy(double epsilon, std::unordered_map<State_action, double> &qtable, int player_points,
                        int dealer_points, int player_usable_ace);
 
-    void update_qtable(int reward, std::vector<State_action> &occured_state_actions,
+    void update_qtable(std::vector<State_action> &occured_state_actions,
                        std::unordered_map<State_action, double> &qtable,
                        std::unordered_map<State, int> &state_count,
                        std::unordered_map<State_action, int> &state_action_count,
