@@ -74,7 +74,6 @@ namespace training {
                                                                   game.player_usable_ace, action);
                 Episode e = game_proceed(game, action, winning_points, dealer_criticial_points_to_stick);
                 reward = e.reward;
-                occurred_state_action.reward = e.reward;
                 if (std::find(occured_state_actions.begin(), occured_state_actions.end(), occurred_state_action)
                     == occured_state_actions.end() && game.player_points <= winning_points) {
                     occured_state_actions.push_back(occurred_state_action);

@@ -15,12 +15,11 @@ struct State_action {
     int dealer_first_card_points;
     int usable_ace;
     int action;
-    int reward;
 
-    State_action(int player_points, int dealer_first_card_points, int usable_ace, int action, int reward = 0) :
+    State_action(int player_points, int dealer_first_card_points, int usable_ace, int action) :
             player_points(player_points), dealer_first_card_points(dealer_first_card_points),
             usable_ace(usable_ace),
-            action(action), reward(reward) {
+            action(action) {
 
     }
 
@@ -82,7 +81,7 @@ namespace strategy {
                        std::unordered_map<State_action, double> &qtable,
                        std::unordered_map<State, int> &state_count,
                        std::unordered_map<State_action, int> &state_action_count,
-                       const std::string &method, double gamma = 0.8);
+                       const std::string &method, double gamma = 0.9);
 
 }
 
