@@ -20,5 +20,5 @@ namespace training {
         return (std::find(vec.begin(), vec.end(), obj) != vec.end());
     }
 }
-
+void send_additional(std::vector<double> &v, const std::string &method, const std::string& param);
 #endif //TRAINING_H

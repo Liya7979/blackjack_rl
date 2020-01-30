@@ -56,6 +56,7 @@ void Strategy::update_qtable(int reward, std::vector<StateAction> &occurred_stat
                             stick(next_state, 1);
                     best_next_q = gamma * std::max(qtable.at(hit), qtable.at(stick));
                 } else {
+                    // Sarsa
                     StateAction next_state_action = occurred_state_actions.at(i + 1);
                     best_next_q = gamma * qtable.at(next_state_action);
                 }
@@ -66,6 +67,7 @@ void Strategy::update_qtable(int reward, std::vector<StateAction> &occurred_stat
             StateAction occurred = occurred_state_actions.at(i);
             qtable.at(occurred) = (1 - alpha) * previous_Q + alpha * (reward + best_next_q);
         } else {
+            // TD
             StateAction occurred = occurred_state_actions.at(i);
             qtable.at(occurred) += alpha * (reward - qtable.at(occurred));
         }
