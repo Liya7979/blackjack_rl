@@ -6,23 +6,34 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-def read_file(filename):
+def read_qtable(filename):
+    qtable_list = defaultdict(list)
     qtable = defaultdict(float)
-    with open(path.dirname(__file__) + '/../' +filename) as file:
-        for line in file:
-            numbers = line.split(",")
-            arr = list(map(int, numbers[:4]))
-            (a, b, c, d) = (arr[0], arr[1], arr[2], arr[3])
-            qtable[(a, b, c, d)] = float(numbers[4])
+    for i in range(1, 11):
+        with open(path.dirname(__file__) + '../run/' + str(i) + '/' + filename) as file:
+            for line in file:
+                numbers = line.split(",")
+                arr = list(map(int, numbers[:4]))
+                (a, b, c, d) = (arr[0], arr[1], arr[2], arr[3])
+                if len(qtable_list) == 0:
+                    qtable_list[(a, b, c, d)] = [float(numbers[4])]
+                else:
+                    if (a, b, c, d) in qtable_list.keys():
+                        qtable_list[(a, b, c, d)].append(float(numbers[4]))
+                    else:
+                        qtable_list[(a, b, c, d)] = [float(numbers[4])]
+    for i in qtable_list.keys():
+        qtable[i] = float(np.mean(qtable_list[i]))
     return qtable
 
 
 def read_data(filename):
-    data = []
-    with open(path.dirname(__file__) + '/../' +filename) as file:
-        for line in file:
-            data.append(float(line))
-    return data
+    data = [[] for i in range(10)]
+    for i in range(1, 11):
+        with open(path.dirname(__file__) + '../run/' + str(i) + '/' + filename) as file:
+            for line in file:
+                data[i - 1].append(float(line))
+    return np.average(data, axis=0).tolist()
 
 
 def plot_rewards(ql, sarsa, td, plot_name="plot.png"):
@@ -72,16 +83,16 @@ def plot_policy(policy, plot_filename="plot.png"):
     plt.show()
 
 
-outpath = path.dirname(__file__) + '/../plots/'
-losses_ql = read_data("Q-learning_rewards.txt")
-losses_sarsa = read_data("Sarsa_rewards.txt")
-losses_td = read_data("TD_rewards.txt")
-plot_rewards(losses_ql, losses_sarsa, losses_td, "learning_curve")
-qtable = read_file("ql.txt")
+outpath = path.dirname(__file__) + '../plots/'
+ql = read_data("Q-learning_rewards.txt")
+sarsa = read_data("Sarsa_rewards.txt")
+td = read_data("TD_rewards.txt")
+plot_rewards(ql, sarsa, td, "learning_curve")
+qtable = read_qtable("ql.txt")
 plot_policy(qtable, "qtable_ql")
-qtable = read_file("sarsa.txt")
+qtable = read_qtable("sarsa.txt")
 plot_policy(qtable, "qtable_sarsa")
-qtable = read_file("td.txt")
+qtable = read_qtable("td.txt")
 plot_policy(qtable, "qtable_td")
 # eps = read_data("Sarsa_eps.txt")
 # plt.plot(eps)

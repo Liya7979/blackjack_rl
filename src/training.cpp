@@ -33,9 +33,8 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
     int episodes = 0;
     int iterations = training_iter + testing_iter;
     for (int i = 0; i < iterations; ++i) {
-        round_epsilons.clear();
         ++episodes;
-        if (i % 10000 == 0) {
+        if (i % 100000 == 0) {
             std::cout << "Iterations passed: " << i << std::endl;
         }
         int rounds = 0;
@@ -69,6 +68,7 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
                 if (i < training_iter) {
                     score.push_back(double(reward) / rounds);
                 }
+                epsilons.push_back(mean(round_epsilons));
                 game.finished = true;
 
             }
@@ -78,7 +78,6 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
                 average_rewards.push_back(mean(score));
                 score.clear();
             }
-            epsilons.push_back(mean(round_epsilons));
             Strategy::update_qtable(reward, occurred_state_actions, qtable, state_count, state_action_count, method);
         } else {
             if (reward == 1) {
@@ -90,13 +89,17 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
             }
         }
     }
-    std::cout << "After training for " << training_iter << " iterations with " << method << std::endl;
-    std::cout << "Our system plays for " << testing_iter << " rounds" << std::endl;
+    std::vector<double> performance(3);
+    std::cout << "After training for " << training_iter << " episodes using " << method << std::endl;
+    std::cout << "The system plays for " << testing_iter << " rounds" << std::endl;
     std::cout << "Win: " << (static_cast<double>(results[0]) / testing_iter * 100.0) << "%" << std::endl;
     std::cout << "Draw: " << (static_cast<double>(results[1]) / testing_iter * 100.0) << "%" << std::endl;
     std::cout << "Lose: " << (static_cast<double>(results[2]) / testing_iter * 100.0) << "%\n" << std::endl;
+    performance.push_back((static_cast<double>(results[0]) / testing_iter * 100.0));
+    performance.push_back((static_cast<double>(results[1]) / testing_iter * 100.0));
+    performance.push_back((static_cast<double>(results[2]) / testing_iter * 100.0));
     send_additional(average_rewards, method, "rewards");
     send_additional(epsilons, method, "eps");
-
+    send_additional(performance, method, "performance");
     return qtable;
 }

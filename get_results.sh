@@ -1,4 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 make
-./blackjack
-python scripts/plots.py
+mkdir run
+cd run
+for i in {1..10}
+do
+  mkdir $i
+  cd $i
+  pwd
+  ../../blackjack
+  cd ..
+done
+
+#python scripts/plots.py
