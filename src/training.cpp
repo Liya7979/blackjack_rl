@@ -26,12 +26,21 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
     std::array<int, 3> results{0, 0, 0};
     std::vector<double> average_rewards;
     std::vector<double> score;
-
+    /* hashmap with initial values of 0: key = player card points, dealer showing card,
+     * usable ace (not usable=0, usable=1), action (hit=0, stick=1);
+     * value = Q(s,a) function that stores the Q value for all combinations of states and actions */
     DefaultDict<StateAction, double> qtable;
+    /* hashmap with initial values of 0: key = player card points, dealer showing card,
+     * usable ace (not usable=0, usable=1), action (hit=0, stick=1);
+     * value = frequency of some particular state-action pairs (used for calculating the step size */
     DefaultDict<State, int> state_count;
+    /* hashmap with initial values of 0: key = player card points, dealer showing card,
+     * usable ace (not usable=0, usable=1), action (hit=0, stick=1);
+     * value = frequency of some particular states (used for calculating the epsilon decay) */
     DefaultDict<StateAction, int> state_action_count;
     int episodes = 0;
     int iterations = training_iter + testing_iter;
+    // training and testing is performed
     for (int i = 0; i < iterations; ++i) {
         ++episodes;
         if (i % 100000 == 0) {
@@ -59,11 +68,13 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
             if (!vec_contains(occurred_state_actions, state_action) && game.player_points <= winning_points) {
                 occurred_state_actions.push_back(state_action);
             }
+            // starting the game with the player's action
             Round round = step(game, action, dealer_crit_points_to_stick);
             game.player_points = round.player;
             game.dealer_points = round.dealer;
             game.player_usable_ace = round.usable_ace;
             reward = round.reward;
+            // if we get a reward, the game is finished
             if (reward != -2) {
                 if (i < training_iter) {
                     score.push_back(double(reward) / rounds);
@@ -74,12 +85,14 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
             }
         }
         if (i < training_iter) {
+            // average reward calculated per each 1000 episode
             if (episodes % 1000 == 0) {
                 average_rewards.push_back(mean(score));
                 score.clear();
             }
             Strategy::update_qtable(reward, occurred_state_actions, qtable, state_count, state_action_count, method);
         } else {
+            // testing phase: calculating the number of wins, draws and losses
             if (reward == 1) {
                 ++results[0];
             } else if (reward == -1) {
@@ -98,6 +111,7 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
     performance.push_back((static_cast<double>(results[0]) / testing_iter * 100.0));
     performance.push_back((static_cast<double>(results[1]) / testing_iter * 100.0));
     performance.push_back((static_cast<double>(results[2]) / testing_iter * 100.0));
+    // sending the results for post-processsing with Python
     send_additional(average_rewards, method, "rewards");
     send_additional(epsilons, method, "eps");
     send_additional(performance, method, "performance");

@@ -11,4 +11,4 @@ do
   cd ..
 done
 
-#python scripts/plots.py
+python scripts/plots.py

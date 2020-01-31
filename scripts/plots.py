@@ -4,6 +4,7 @@ from os import path
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from scipy.stats import wilcoxon
 
 
 def read_qtable(filename):
@@ -39,13 +40,14 @@ def read_data(filename):
 def plot_rewards(ql, sarsa, td, plot_name="plot.png"):
     algorithms = [ql, sarsa, td]
     x = [i * 1000 for i in range(len(ql))]
-    labels = ['Q-learning', 'Sarsa', 'TD(0)']
+    labels = ['Q-learning', 'Sarsa', 'TD(1)']
     for i in range(len(algorithms)):
         plt.plot(x, algorithms[i], label=labels[i])
     plt.ylabel('Average reward')
     plt.xlabel('Episodes')
     plt.legend()
     plt.savefig(path.join(outpath, plot_name))
+    plt.show()
 
 
 def plot_policy(policy, plot_filename="plot.png"):
@@ -83,17 +85,30 @@ def plot_policy(policy, plot_filename="plot.png"):
     plt.show()
 
 
+# plotting the learning curve
 outpath = path.dirname(__file__) + '../plots/'
 ql = read_data("Q-learning_rewards.txt")
 sarsa = read_data("Sarsa_rewards.txt")
 td = read_data("TD_rewards.txt")
 plot_rewards(ql, sarsa, td, "learning_curve")
+
+# plotting the optimal policy
 qtable = read_qtable("ql.txt")
 plot_policy(qtable, "qtable_ql")
 qtable = read_qtable("sarsa.txt")
 plot_policy(qtable, "qtable_sarsa")
 qtable = read_qtable("td.txt")
 plot_policy(qtable, "qtable_td")
+
+# significance tests
+stat, p = wilcoxon(td, ql)
+print('Statistics=%.3f, p=%.3f' % (stat, p))
+# interpret
+alpha = 0.05
+if p > alpha:
+    print('Same distribution (fail to reject H0)')
+else:
+    print('Different distribution (reject H0)')
 # eps = read_data("Sarsa_eps.txt")
 # plt.plot(eps)
 # plt.show()

@@ -35,7 +35,7 @@ int Strategy::best_action(DefaultDict<StateAction, double> &qtable, const State 
 
 void Strategy::update_qtable(int reward, std::vector<StateAction> &occurred_state_actions, DefaultDict<StateAction,
         double> &qtable, DefaultDict<State, int> &state_count, DefaultDict<StateAction, int> &state_action_count,
-                             const std::string& method, double gamma) {
+                             const std::string &method, double gamma) {
     for (int i = 0; i < occurred_state_actions.size(); ++i) {
         StateAction state_action = occurred_state_actions.at(i);
         State state = state_action.get_state();
@@ -65,6 +65,8 @@ void Strategy::update_qtable(int reward, std::vector<StateAction> &occurred_stat
                 best_next_q = 0;
             }
             StateAction occurred = occurred_state_actions.at(i);
+            // the reward is the same for all occured state-action pairs since it is the outcome of after taking
+            // these actions in particular state
             qtable.at(occurred) = (1 - alpha) * previous_Q + alpha * (reward + best_next_q);
         } else {
             // TD

@@ -86,7 +86,7 @@ Round::Round(int player, int dealer, bool usable_ace, int reward) :
 int cmp(int a, int b) {
     return (a > b) - (a < b);
 }
-
+// used for calculating the final reward
 void calculate_reward(int &reward, int player_points, int dealer_points, int winning_points) {
     if (dealer_points > winning_points) {
         reward = 1;
@@ -102,6 +102,7 @@ Round step(Blackjack &game, int action, int dealer_critical_points_to_stick) {
             dealer_points = game.dealer_points;
     bool usable_ace = game.player_usable_ace;
 
+    // player looses if busts (gets more than 21), dealer gets 21 or dealer gets more than player
     if (action == 0) {
         game.player_draw_card();
         auto player_hand_points = game.calculate_hand_points(game.player_cards);
