@@ -1,4 +1,4 @@
-#include "Strategy.h"
+#include "../include/Strategy.h"
 
 double Strategy::random_between_0_1() {
     std::random_device rd;

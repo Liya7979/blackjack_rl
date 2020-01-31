@@ -1,4 +1,4 @@
-#include "State.h"
+#include "../include/State.h"
 
 // State
 State::State(int player_points, int dealer_points, bool usable_ace) :

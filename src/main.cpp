@@ -1,5 +1,5 @@
 #include <fstream>
-#include "training.h"
+#include "../include/training.h"
 
 void send_to_file(const std::string &method, DefaultDict<StateAction, double> &qtable) {
     std::ofstream qt;

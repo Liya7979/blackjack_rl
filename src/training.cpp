@@ -1,5 +1,5 @@
 #include <fstream>
-#include "training.h"
+#include "../include/training.h"
 
 double mean(const std::vector<double> &vec) {
     double sum = 0.0;
@@ -33,6 +33,7 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
     int episodes = 0;
     int iterations = training_iter + testing_iter;
     for (int i = 0; i < iterations; ++i) {
+        round_epsilons.clear();
         ++episodes;
         if (i % 10000 == 0) {
             std::cout << "Iterations passed: " << i << std::endl;
@@ -69,7 +70,7 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
                     score.push_back(double(reward) / rounds);
                 }
                 game.finished = true;
-                epsilons.push_back(mean(round_epsilons));
+
             }
         }
         if (i < training_iter) {
@@ -77,6 +78,7 @@ training::train(int training_iter, int testing_iter, const std::string &method, 
                 average_rewards.push_back(mean(score));
                 score.clear();
             }
+            epsilons.push_back(mean(round_epsilons));
             Strategy::update_qtable(reward, occurred_state_actions, qtable, state_count, state_action_count, method);
         } else {
             if (reward == 1) {

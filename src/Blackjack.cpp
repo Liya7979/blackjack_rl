@@ -1,4 +1,4 @@
-#include "Blackjack.h"
+#include "../include/Blackjack.h"
 #include <algorithm>
 #include <random>
 
